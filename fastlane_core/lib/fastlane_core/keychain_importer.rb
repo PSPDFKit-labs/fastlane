@@ -4,32 +4,28 @@ require 'open3'
 module FastlaneCore
   class KeychainImporter
     def self.import_file(path, keychain_path, keychain_password: "", certificate_password: "", output: FastlaneCore::Globals.verbose?)
-      puts "at start of import: #{path}, #{keychain_path}"
       UI.user_error!("Could not find file '#{path}'") unless File.exist?(path)
 
       command = "security import #{path.shellescape} -k '#{keychain_path.shellescape}'"
       command << " -P #{certificate_password.shellescape}"
       command << " -T /usr/bin/codesign" # to not be asked for permission when running a tool like `gym` (before Sierra)
       command << " -T /usr/bin/security"
-      #command << " &> /dev/null" unless output
+      command << " &> /dev/null" unless output
 
-      suff = Helper.backticks(command, print: output)
-      puts "stuff 1: #{suff}"
+      Helper.backticks(command, print: output)
 
       # When security supports partition lists, also add the partition IDs
       # See https://openradar.appspot.com/28524119
       if Helper.backticks('security -h | grep set-key-partition-list', print: false).length > 0
         command = "security set-key-partition-list"
         command << " -S apple-tool:,apple:"
-        #command << " -l 'Imported Private Key'"
+        command << " -l 'Imported Private Key'" if File.extname("p12")
         command << " -k #{keychain_password.to_s.shellescape}"
         command << " #{keychain_path.shellescape}"
-        #command << " &> /dev/null" unless output
-        #command << " &> /dev/null" # always disable stdout. This can be very verbose, and leak potentially sensitive info
+        command << " &> /dev/null" unless output # always disable stdout. This can be very verbose, and leak potentially sensitive info
 
         UI.command(command) if output
         Open3.popen3(command) do |stdin, stdout, stderr, thrd|
-          puts "stuff 2: #{stdout.read.to_s.strip}"
           unless thrd.value.success?
             UI.error("")
             UI.error("Could not configure imported keychain item (certificate) to prevent UI permission popup when code signing\n" \
