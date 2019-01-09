@@ -26,9 +26,10 @@ module FastlaneCore
 
         UI.command(command) if output
         Open3.popen3(command) do |stdin, stdout, stderr, thrd|
-          if output
+          #if output
+            UI.message "Should show output"
             UI.command_output(stdout.read)
-          end
+          #end
 
           unless thrd.value.success?
             UI.error("")
