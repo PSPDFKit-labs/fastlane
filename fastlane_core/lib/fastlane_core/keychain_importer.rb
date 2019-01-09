@@ -27,22 +27,20 @@ module FastlaneCore
         #command << " &> /dev/null" unless output
         #command << " &> /dev/null" # always disable stdout. This can be very verbose, and leak potentially sensitive info
 
-        suff = Helper.backticks(command, print: output)
-        puts "stuff 2: #{suff}"
-
-#        UI.command(command) if output
-#        Open3.popen3(command) do |stdin, stdout, stderr, thrd|
-#          unless thrd.value.success?
-#            UI.error("")
-#            UI.error("Could not configure imported keychain item (certificate) to prevent UI permission popup when code signing\n" \
-#                     "Check if you supplied the correct `keychain_password` for keychain: `#{keychain_path}`\n" \
-#                     "#{stderr.read.to_s.strip}")
-#            UI.error("")
-#            UI.error("Please look at the following docs to see how to set a keychain password:")
-#            UI.error(" - https://docs.fastlane.tools/actions/sync_code_signing")
-#            UI.error(" - https://docs.fastlane.tools/actions/get_certificates")
-#          end
-#        end
+        UI.command(command) if output
+        Open3.popen3(command) do |stdin, stdout, stderr, thrd|
+          puts "stuff 2: #{stdout.read.to_s.strip}"
+          unless thrd.value.success?
+            UI.error("")
+            UI.error("Could not configure imported keychain item (certificate) to prevent UI permission popup when code signing\n" \
+                     "Check if you supplied the correct `keychain_password` for keychain: `#{keychain_path}`\n" \
+                     "#{stderr.read.to_s.strip}")
+            UI.error("")
+            UI.error("Please look at the following docs to see how to set a keychain password:")
+            UI.error(" - https://docs.fastlane.tools/actions/sync_code_signing")
+            UI.error(" - https://docs.fastlane.tools/actions/get_certificates")
+          end
+        end
       end
     end
   end
