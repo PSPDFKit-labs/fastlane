@@ -10,19 +10,19 @@ module FastlaneCore
       command << " -P #{certificate_password.shellescape}"
       command << " -T /usr/bin/codesign" # to not be asked for permission when running a tool like `gym` (before Sierra)
       command << " -T /usr/bin/security"
-      #command << " &> /dev/null" unless output
+      command << " &> /dev/null" unless output
 
       Helper.backticks(command, print: output)
 
       # When security supports partition lists, also add the partition IDs
       # See https://openradar.appspot.com/28524119
-      if Helper.backticks('security -h | grep set-key-partition-list', print: false).length > 0
+      if File.extname(path) == ".p12" && Helper.backticks('security -h | grep set-key-partition-list', print: false).length > 0
         command = "security set-key-partition-list"
         command << " -S apple-tool:,apple:"
-        command << " -l 'Imported Private Key'" if File.extname(path) == ".p12"
+        #command << " -l 'Imported Private Key'"
         command << " -k #{keychain_password.to_s.shellescape}"
         command << " #{keychain_path.shellescape}"
-        #command << " &> /dev/null" unless output # always disable stdout. This can be very verbose, and leak potentially sensitive info
+        command << " &> /dev/null" unless output # always disable stdout. This can be very verbose, and leak potentially sensitive info
 
         UI.command(command) if output
         Open3.popen3(command) do |stdin, stdout, stderr, thrd|
