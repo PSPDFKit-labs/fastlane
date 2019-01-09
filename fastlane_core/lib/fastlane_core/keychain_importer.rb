@@ -10,7 +10,7 @@ module FastlaneCore
       command << " -P #{certificate_password.shellescape}"
       command << " -T /usr/bin/codesign" # to not be asked for permission when running a tool like `gym` (before Sierra)
       command << " -T /usr/bin/security"
-      command << " &> /dev/null" unless output
+      #command << " &> /dev/null" unless output
 
       Helper.backticks(command, print: output)
 
@@ -22,7 +22,7 @@ module FastlaneCore
         command << " -l 'Imported Private Key'" if File.extname("p12")
         command << " -k #{keychain_password.to_s.shellescape}"
         command << " #{keychain_path.shellescape}"
-        command << " &> /dev/null" unless output # always disable stdout. This can be very verbose, and leak potentially sensitive info
+        #command << " &> /dev/null" unless output # always disable stdout. This can be very verbose, and leak potentially sensitive info
 
         UI.command(command) if output
         Open3.popen3(command) do |stdin, stdout, stderr, thrd|
