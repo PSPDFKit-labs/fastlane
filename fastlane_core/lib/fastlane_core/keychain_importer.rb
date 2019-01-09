@@ -11,9 +11,10 @@ module FastlaneCore
       command << " -P #{certificate_password.shellescape}"
       command << " -T /usr/bin/codesign" # to not be asked for permission when running a tool like `gym` (before Sierra)
       command << " -T /usr/bin/security"
-      command << " &> /dev/null" unless output
+      #command << " &> /dev/null" unless output
 
-      Helper.backticks(command, print: output)
+      suff = Helper.backticks(command, print: output)
+      puts "stuff 1: #{suff}"
 
       # When security supports partition lists, also add the partition IDs
       # See https://openradar.appspot.com/28524119
@@ -27,7 +28,7 @@ module FastlaneCore
         #command << " &> /dev/null" # always disable stdout. This can be very verbose, and leak potentially sensitive info
 
         suff = Helper.backticks(command, print: output)
-        puts "stuff: #{suff}"
+        puts "stuff 2: #{suff}"
 
 #        UI.command(command) if output
 #        Open3.popen3(command) do |stdin, stdout, stderr, thrd|
