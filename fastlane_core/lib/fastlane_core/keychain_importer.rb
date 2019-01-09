@@ -19,18 +19,13 @@ module FastlaneCore
       if Helper.backticks('security -h | grep set-key-partition-list', print: false).length > 0
         command = "security set-key-partition-list"
         command << " -S apple-tool:,apple:"
-        command << " -l 'Imported Private Key'"
+        #command << " -l 'Imported Private Key'"
         command << " -k #{keychain_password.to_s.shellescape}"
         command << " #{keychain_path.shellescape}"
         command << " &> /dev/null" # always disable stdout. This can be very verbose, and leak potentially sensitive info
 
         UI.command(command) if output
         Open3.popen3(command) do |stdin, stdout, stderr, thrd|
-          #if output
-            UI.message "Should show output"
-            UI.command_output(stdout.read)
-          #end
-
           unless thrd.value.success?
             UI.error("")
             UI.error("Could not configure imported keychain item (certificate) to prevent UI permission popup when code signing\n" \
