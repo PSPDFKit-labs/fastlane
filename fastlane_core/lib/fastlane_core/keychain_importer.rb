@@ -26,6 +26,10 @@ module FastlaneCore
 
         UI.command(command) if output
         Open3.popen3(command) do |stdin, stdout, stderr, thrd|
+          if output
+            UI.command_output(stdout.read)
+          end
+
           unless thrd.value.success?
             UI.error("")
             UI.error("Could not configure imported keychain item (certificate) to prevent UI permission popup when code signing\n" \
